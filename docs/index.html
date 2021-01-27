@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@2.6.347/build/pdf.min.js" integrity="sha256-LcN79UmfecVJ8WEjAgndjZ29b+d2nf4t+FJd6pKrlG0=" crossorigin="anonymous"></script>    <title>Document</title>
+    <style>
+body {
+    height: 100vh;
+    width: 100%;
+    margin: 0;
+    background-color: #ccc;
+}
+#canvas {
+    max-width: 100vh;
+    max-width: 100%;
+}
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    <div>
+        <button onclick="loadPage(pageNumber - 1)">前</button><button onclick="loadPage(pageNumber + 1)">次</button>
+    </div>
+    <form id="form">
+        <input id="file" type="file" accept=".pdf" />
+        <input type="submit" value="読み込み"/>
+    </form>
+
+    <script>
+const canvas = document.getElementById('canvas');
+const canvasContext = canvas.getContext('2d');
+let pdf;
+let pageNumber = 1;
+
+async function loadFile(file) {
+    return new Promise((resolve) => {
+        const fileReader = new FileReader();  
+        fileReader.onload = function() {
+            const typedarray = new Uint8Array(fileReader.result);
+            resolve(typedarray);
+        };
+        fileReader.readAsArrayBuffer(file);
+    });
+}
+
+async function loadPage(n) {
+    const page = await pdf.getPage(n);
+    pageNumber = n;
+    const viewport = page.getViewport({ scale: 5 });
+    canvas.height = viewport.height;
+    canvas.width = viewport.width;
+    const renderContext = { canvasContext, viewport };
+    await page.render(renderContext);
+}
+
+async function main(event) {
+    event.preventDefault();
+    const fileInput = document.getElementById('file');
+    const file = fileInput.files[0];
+    if (!file) {
+        return;
+    }
+    const binary = await loadFile(file);
+    pdf = await pdfjsLib.getDocument(binary).promise;
+    pageNumber = 1;
+    loadPage(pageNumber);
+}
+
+const form = document.getElementById('form');
+form.addEventListener('submit', main);
+    </script>
+            
+</body>
+</html>
