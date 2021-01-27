@@ -26,6 +26,10 @@ body {
         <input id="file" type="file" accept=".pdf" />
         <input type="submit" value="読み込み"/>
     </form>
+    <form id="form2">
+        <input id="url" type="url" placeholder="url" value="https://raw.githubusercontent.com/mozilla/pdf.js/ba2edeae/examples/learning/helloworld.pdf" />
+        <input type="submit" value="URLから読み込み"/>
+    </form>
 
     <script>
 const canvas = document.getElementById('canvas');
@@ -67,8 +71,20 @@ async function main(event) {
     loadPage(pageNumber);
 }
 
+async function main2(event) {
+    event.preventDefault();
+    const urlInput = document.getElementById('url');
+    const url = urlInput.value;
+    console.log(url);
+    pdf = await pdfjsLib.getDocument(url).promise;
+    pageNumber = 1;
+    loadPage(pageNumber);
+}
+
 const form = document.getElementById('form');
 form.addEventListener('submit', main);
+const form2 = document.getElementById('form2');
+form2.addEventListener('submit', main2);
     </script>
             
 </body>
